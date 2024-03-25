@@ -1,0 +1,19 @@
+SET 'auto.offset.reset' = 'earliest';
+
+DESCRIBE FUNCTION formula;
+
+CREATE STREAM s1 (
+    a VARCHAR KEY,
+    b INT,
+    c INT
+) WITH (
+    kafka_topic = 's1',
+    partitions = 1,
+    value_format = 'avro'
+);
+
+INSERT INTO s1 (a, b, c) VALUES ('k1', 2, 3);
+INSERT INTO s1 (a, b, c) VALUES ('k2', 4, 6);
+INSERT INTO s1 (a, b, c) VALUES ('k3', 6, 9);
+
+SELECT a, formula(b, c) AS result FROM s1 EMIT CHANGES;
