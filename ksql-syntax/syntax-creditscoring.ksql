@@ -1,1 +1,53 @@
+create stream woe_credit (
+nik bigint key,
+woe_age double,
+woe_debt_ratio double,
+woe_monthly_income double,
+woe_30_59_days double,
+woe_60_89_days double,
+woe_90_days double,
+no_depedents double
+) with (
+kafka_topic='woe_credit',
+partitions=1,
+value_format='AVRO'
+);
 
+INSERT INTO woe_credit (
+nik,
+woe_age,
+woe_debt_ratio,
+woe_monthly_income,
+woe_30_59_days,
+woe_60_89_days,
+woe_90_days,
+no_depedents
+) VALUES (
+123111231411122,
+53,
+1,
+3000,
+1,
+1,
+1,
+3
+);
+
+SET 'auto.offset.reset' = 'earliest';
+
+SELECT nik, CREDIT_SCORING(woe_age,
+                           woe_debt_ratio,
+                           woe_monthly_income,
+                           woe_30_59_days,
+                           woe_60_89_days,
+                           woe_90_days,
+                           no_depedents)
+                           AS SCORING , CREDIT_SCORING_STATUS(CREDIT_SCORING(
+                           woe_age,
+                           woe_debt_ratio,
+                           woe_monthly_income,
+                           woe_30_59_days,
+                           woe_60_89_days,
+                           woe_90_days,
+                           no_depedents))
+                           as STATUS FROM woe_credit EMIT CHANGES;
